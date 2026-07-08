@@ -7,7 +7,7 @@ from react import llm,tools
 load_dotenv()
 
 SYSTEM_MESSAGE="""
-You are a helpful assistant tha can use tools to answer questions
+You are a helpful assistant that can use tools to answer questions
 """
 
 
@@ -15,7 +15,7 @@ def run_agent_reasoning(states: MessagesState) -> MessagesState:
     """
     Run the agent reasoning node.
     """
-    response=llm.invoke([{'role':'system','content':SYSTEM_MESSAGE}, *state['messages']])
+    response=llm.invoke([{'role':'system','content':SYSTEM_MESSAGE}, *states['messages']])
     return {
         'messages':[response]
     }
