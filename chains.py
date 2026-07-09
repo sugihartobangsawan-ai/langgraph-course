@@ -24,6 +24,6 @@ generation_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-llm = ChatGoogleGenerativeAI()
+llm = ChatGoogleGenerativeAI(model='gemini-2.5-flash', temperature=0)
 generate_chain = generation_prompt | llm
 reflection_chain = reflection_prompt | llm
