@@ -28,7 +28,7 @@ builder.add_node(REFLECT, reflection_node)
 builder.set_entry_point(GENERATE)
 
 def should_continue(state: MessageGraph):
-    if len(state['messages']) >6:
+    if len(state['messages']) > 6:
         return END
     return REFLECT
 
@@ -39,8 +39,26 @@ builder.add_conditional_edges(GENERATE, should_continue, path_map={
 builder.add_edge(REFLECT, GENERATE)
 
 app = builder.compile()
-app.get_graph().draw_mermaid_png(output_file_path='flow.png')
+# app.get_graph().draw_mermaid_png(output_file_path='flow.png')
+graph = builder.compile()
 
+first_prompt = """
+Make this tweet better:
+@LangChainAI - newly Tool Calling feature is seriously underrated.
+After a long wait, it's here - making the implementation of agents across different models with function calling - super easy.
+Made a video covering their newest blog post
+"""
 
 if __name__ == "__main__":
     print("Hello LangGraph")
+    inputs = {
+        'messages': [
+            HumanMessage(content=first_prompt),
+        ]
+    }
+    response=graph.invoke(inputs)
+    for message in response["messages"]:
+        print(f"{message.__class__.__name__}:")
+        print(message.content)
+        print("-" * 50)
+
