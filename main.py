@@ -6,29 +6,49 @@ load_dotenv()
 from langchain_core.messages import BaseMessage, HumanMessage
 from langgraph.graph import END, StateGraph
 from langgraph.graph.message import add_messages
+from typing import TypedDict
 
 from chains import generate_chain, reflection_chain
 
-class MessageGraph(TypedDict):
-    messages: Annotated[list[BaseMessage], add_messages]
+
+#new state
+class State(TypedDict):
+    original_request: str
+    draft: str
+    critique: str
+    iteration: int
 
 REFLECT='reflect'
 GENERATE='generate'
 
-def generation_node(state: MessageGraph):
-    return {'messages':[generate_chain.invoke({'messages': state['messages']})]}
+def generation_node(state: State):
+    result = generate_chain.invoke({
+        "original_request": state["original_request"],
+        "draft": state["draft"],
+        "critique": state["critique"],
+    })
 
-def reflection_node(state: MessageGraph):
-    res = reflection_chain.invoke({'messages': state['messages']})
-    return {'messages': [HumanMessage(content=res.content)]}
+    return {
+        "draft": result.text
+    }
 
-builder = StateGraph(state_schema=MessageGraph)
+def reflection_node(state: State):
+    result = reflection_chain.invoke({
+        "draft": state["draft"]
+    })
+
+    return {
+        "critique": result.text,
+        'iteration': state["iteration"] + 1
+    }
+
+builder = StateGraph(state_schema=State)
 builder.add_node(GENERATE, generation_node)
 builder.add_node(REFLECT, reflection_node)
 builder.set_entry_point(GENERATE)
 
-def should_continue(state: MessageGraph):
-    if len(state['messages']) > 6:
+def should_continue(state: State):
+    if state['iteration'] >=3:
         return END
     return REFLECT
 
@@ -52,13 +72,26 @@ Made a video covering their newest blog post
 if __name__ == "__main__":
     print("Hello LangGraph")
     inputs = {
-        'messages': [
-            HumanMessage(content=first_prompt),
-        ]
+        "original_request": first_prompt,
+        "draft": "",
+        "critique": "",
+        'iteration': 0
     }
     response=graph.invoke(inputs)
-    for message in response["messages"]:
-        print(f"{message.__class__.__name__}:")
-        print(message.content)
-        print("-" * 50)
+
+    print("=" * 60)
+    print("FINAL RESULT")
+    print("=" * 60)
+
+    print("\nOriginal Request:")
+    print(response["original_request"])
+
+    print("\nFinal Draft:")
+    print(response["draft"])
+
+    print("\nLatest Critique:")
+    print(response["critique"])
+
+    print("\nReflection Iterations:")
+    print(response["iteration"])
 

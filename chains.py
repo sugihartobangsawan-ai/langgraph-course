@@ -1,33 +1,27 @@
 from  langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 reflection_prompt = ChatPromptTemplate.from_messages(
     [
         (
             'system',
-            # "You are a viral twitter influencer grading a tweet. Generate critique and recommendation for the user."
-            # "Always provide the detailed recommendations, including requests for length, virality, style, etc."
             """
-            You are an expert Twitter editor.
+            You are a Twitter editor.
 
-            Review ONLY the assistant's latest tweet.
+            Review this tweet.
             
-            Do NOT rewrite it.
-            
-            Return only constructive criticism.
-
-            Your response must be bullet points.
-            
-            Focus on:
-            - Hook
-            - Clarity
-            - Virality
-            - Length
-            - Tone
-            - Call to action
+            Return only bullet point feedback.
             """
         ),
-        MessagesPlaceholder(variable_name='messages'),
+        (
+            'human',
+            '{draft}'
+        )
     ]
 )
 
@@ -39,22 +33,32 @@ generation_prompt = ChatPromptTemplate.from_messages(
             # "Generate the best twitter post possible for the user's request"
             # "If the user provides the critique, respond with a revised version of your previous attempts."
             """
-            You are an expert Twitter/X writer.
+            You are an expert Twitter writer.
 
-            The first human message contains the original request.
+            Improve the draft using the critique.
             
-            If later human messages contain feedback,
-            treat them as critiques of your previous draft.
-            
-            Rewrite ONLY your previous tweet using the latest critique.
+            If the draft is empty, write a brand new tweet.
             
             Return only the tweet.
             """
         ),
-        MessagesPlaceholder(variable_name='messages'),
+        ("human",
+         """
+        Original request:
+        {original_request}
+        
+        Previous draft:
+        {draft}
+        
+        Critique:
+        {critique}
+         """
+         )
     ]
 )
 
 llm = ChatGoogleGenerativeAI(model='gemini-3.1-flash-lite', temperature=0)
+# llm = ChatOllama(model='qwen3.5:9b')
+
 generate_chain = generation_prompt | llm
 reflection_chain = reflection_prompt | llm
