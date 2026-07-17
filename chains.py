@@ -61,7 +61,7 @@ Revise your previous answer using the new information.
 
 revisor = actor_prompt_template.partial(
     first_instruction=revise_instructions
-) | llm.bind_tools(tols=[ReviseAnswer],tool_choice="ReviseAnswer")
+) | llm.bind_tools(tools=[ReviseAnswer],tool_choice="ReviseAnswer")
 
 if __name__ == "__main__":
     human_message = HumanMessage(

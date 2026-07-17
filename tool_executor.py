@@ -10,7 +10,7 @@ from langgraph.prebuilt import ToolNode
 
 from schema import AnswerQuestion, ReviseAnswer
 
-tavily_tool = TavilySearch(max_results=5)
+tavily_tool = TavilySearch(max_results=2)
 
 def run_queries(search_queries: List[str], **kwargs):
     """Run the generated queries."""
