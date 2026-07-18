@@ -20,13 +20,14 @@ def revise_node(state:MessagesState):
 
 def event_loop(state: MessagesState) -> Literal["execute_tools", END]:
     """Determine whether to continue or end based on iteration count"""
-    count_tool_visits = sum(
-        isinstance(item, ToolMessage) for item in state['messages']
+    tool_calls = sum(
+        isinstance(msg, ToolMessage)
+        for msg in state["messages"]
     )
-    num_iterations = count_tool_visits
-    if num_iterations > MAX_ITERATIONS:
+    if tool_calls >= MAX_ITERATIONS:
         return END
     return "execute_tools"
+
 
 builder = StateGraph(MessagesState)
 builder.add_node('draft', draft_node)
@@ -47,7 +48,7 @@ res= graph.invoke(
         'messages': [
             {
                 'role': 'user',
-                'content': 'Write about AI-Powered SOC / Autonomous soc problem domain, list startups that do that and raised capital.'
+                'content': 'Write about shrimp startup in Indonesia and list top 3 startup that got invested'
             }
         ]
     }

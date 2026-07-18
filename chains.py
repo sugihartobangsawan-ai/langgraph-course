@@ -57,6 +57,12 @@ Revise your previous answer using the new information.
         - [1] https://example.com
         - [2] https://example.com
     - You should use the previous critique to remove superfluous information from your answer and make SURE it is not more than 250 words.
+    - Always generate 1-3 NEW search queries that would further improve the answer.
+        The search queries must:
+        - investigate missing details identified in your reflection
+        - never repeat previous search queries
+        - become increasingly specific each iteration
+        - explore aspects not yet covered
 """
 
 revisor = actor_prompt_template.partial(
